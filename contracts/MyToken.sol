@@ -11,14 +11,15 @@ contract MyToken {
 
     uint256 public totalSupply; // 전체 몇개를 발행했느냐
     mapping(address => uint256) public balanceOf; // 누가 얼마를 가지고 있느냐
+    // 수수료를 내지 아니함
 
-    constructor(string memory _name, string memory _symbol, uint8  _decimal){
+    constructor(string memory _name, string memory _symbol, uint8 _decimal, uint256 _amount){
         name = _name;
         symbol = _symbol;
         decimals = _decimal;
         // transaction
         // from, to, date, value, gas, ...
-        _mint(1*10**uint256(decimals), msg.sender); // 1MT
+        _mint(_amount * 10 ** uint256(decimals), msg.sender); // 1MT
     }
 
     function _mint(uint256 amount, address owner) internal {
@@ -26,6 +27,12 @@ contract MyToken {
         balanceOf[owner] += amount;
     }
 
+    function transfer(uint256 amount, address to) external{
+        require(balanceOf[msg.sender] >= amount, "insufficient balance"); // 어떤 문제로 거래가 실패했는지 알 수 있음
+
+        balanceOf[msg.sender] -= amount; // state 변경으로 gas 발생
+        balanceOf[to] += amount;
+    }
     // function totalSupply() external view returns (uint256) { // external : 외부에서만 호출 가능, view : 읽기전용
     //     return totalSupply;
     // }
