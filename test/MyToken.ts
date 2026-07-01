@@ -49,15 +49,41 @@ describe("My Token", () => {
 
   describe("Transfer", () => {
     it("should have 0.5MT", async () => {
+      const signer0 = signers[0];
       const signer1 = signers[1];
-      await myTokenC.transfer(
-        hre.ethers.parseUnits("0.5", decimals),
-        signer1.address,
-      ); // 호출 시, transaction 생성
+      // const tx =
+      await expect(
+        myTokenC.transfer(
+          hre.ethers.parseUnits("0.5", decimals),
+          signer1.address,
+        ),
+      )
+        .to.emit(myTokenC, "Transfer")
+        .withArgs(
+          signer0.address,
+          signer1.address,
+          hre.ethers.parseUnits("0.5", decimals),
+        ); // 호출 시, transaction 생성
+
+      /*
+      const receipt = await tx.wait(); // transaction이 완료될 때까지 기다림
+      console.log(receipt?.logs);
+      */
       expect(await myTokenC.balanceOf(signer1.address)).equal(
         // state 변경없이 읽기만 하는 function
         hre.ethers.parseUnits("0.5", decimals),
       );
+
+      const filter = myTokenC.filters.Transfer(signer0.address);
+      const logs = await myTokenC.queryFilter(filter, 0, "latest"); // 관련 로그를 array로 가져옴
+
+      /*
+      console.log(logs.length);
+
+      console.log(logs[0].args.from); // 실제 발생한 event의 데이터 참고 가능
+      console.log(logs[0].args.to);
+      console.log(logs[0].args.value);
+      */
     });
 
     it("should be reverted with insufficient balance error", async () => {
