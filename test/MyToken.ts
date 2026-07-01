@@ -129,7 +129,6 @@ describe("My Token", () => {
           hre.ethers.parseUnits("3", decimals),
         );
 
-      // balance 확인
       expect(await myTokenC.balanceOf(signer1.address)).to.equal(
         hre.ethers.parseUnits("3", decimals),
       );
