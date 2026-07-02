@@ -14,7 +14,7 @@ contract MyToken {
 
     uint256 public totalSupply; // 전체 몇개를 발행했느냐
     mapping(address => uint256) public balanceOf; // 누가 얼마를 가지고 있느냐
-    mapping(address => mapping(address => uint256)) allowance;
+    mapping(address => mapping(address => uint256)) public allowance;
 
     constructor(string memory _name, string memory _symbol, uint8 _decimal, uint256 _amount){
         name = _name;
