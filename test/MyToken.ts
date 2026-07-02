@@ -2,9 +2,7 @@ import hre from "hardhat";
 import { expect } from "chai";
 import { MyToken } from "../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
-
-const MINTING_AMOUNT = 100n;
-const DECIMALS = 18n;
+import { DECIMALS, MINTING_AMOUNT } from "./constant";
 
 describe("My Token", () => {
   let myTokenC: MyToken;
@@ -90,7 +88,7 @@ describe("My Token", () => {
       const signer1 = signers[1];
       await expect(
         myTokenC.transfer(
-          hre.ethers.parseUnits((mintingAmount + 1n).toString(), DECIMALS),
+          hre.ethers.parseUnits((MINTING_AMOUNT + 1n).toString(), DECIMALS),
           signer1.address,
         ),
       ).to.be.revertedWith("insufficient balance"); // overflowed
