@@ -35,7 +35,6 @@ describe("My Token", () => {
   });
 
   // 1MT = 1*10^18
-
   describe("Mint", () => {
     it("should return 1MT balance for signer 0", async () => {
       const signer0 = signers[0];
@@ -43,6 +42,31 @@ describe("My Token", () => {
         MINTING_AMOUNT * 10n ** DECIMALS,
       );
     });
+
+    // TDD: Test Driven Development
+    it("should return or revert when minting infinitly", async () => {
+      const hacker = signers[2];
+      const mintingAgainAmount = hre.ethers.parseUnits("10000", DECIMALS);
+      await expect(
+        myTokenC.connect(hacker).mint(mintingAgainAmount, hacker.address),
+      ).to.be.revertedWith("You are not authorized to manage this token");
+    });
+    /*
+    it("should mint token when signer0 calls mint", async () => {
+      const signer0 = signers[0];
+      const mintingAgainAmount = hre.ethers.parseUnits("10", DECIMALS);
+
+      await myTokenC.connect(signer0).mint(mintingAgainAmount, signer0.address);
+
+      expect(await myTokenC.totalSupply()).to.equal(
+        MINTING_AMOUNT * 10n ** DECIMALS + mintingAgainAmount,
+      );
+
+      expect(await myTokenC.balanceOf(signer0.address)).to.equal(
+        MINTING_AMOUNT * 10n ** DECIMALS + mintingAgainAmount,
+      );
+    });
+    */
   });
 
   describe("Transfer", () => {
@@ -63,10 +87,6 @@ describe("My Token", () => {
           hre.ethers.parseUnits("0.5", DECIMALS),
         ); // 호출 시, transaction 생성
 
-      /*
-      const receipt = await tx.wait(); // transaction이 완료될 때까지 기다림
-      console.log(receipt?.logs);
-      */
       expect(await myTokenC.balanceOf(signer1.address)).equal(
         // state 변경없이 읽기만 하는 function
         hre.ethers.parseUnits("0.5", DECIMALS),
@@ -74,14 +94,6 @@ describe("My Token", () => {
 
       const filter = myTokenC.filters.Transfer(signer0.address);
       const logs = await myTokenC.queryFilter(filter, 0, "latest"); // 관련 로그를 array로 가져옴
-
-      /*
-      console.log(logs.length);
-
-      console.log(logs[0].args.from); // 실제 발생한 event의 데이터 참고 가능
-      console.log(logs[0].args.to);
-      console.log(logs[0].args.value);
-      */
     });
 
     it("should be reverted with insufficient balance error", async () => {
