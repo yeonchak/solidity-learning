@@ -33,7 +33,6 @@ describe("My Token", () => {
       );
     });
   });
-
   // 1MT = 1*10^18
   describe("Mint", () => {
     it("should return 1MT balance for signer 0", async () => {
@@ -49,7 +48,7 @@ describe("My Token", () => {
       const mintingAgainAmount = hre.ethers.parseUnits("10000", DECIMALS);
       await expect(
         myTokenC.connect(hacker).mint(mintingAgainAmount, hacker.address),
-      ).to.be.revertedWith("You are not authorized to manage this token");
+      ).to.be.revertedWith("You are not authorized to manage this contract");
     });
     /*
     it("should mint token when signer0 calls mint", async () => {
