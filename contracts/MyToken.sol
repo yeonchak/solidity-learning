@@ -39,6 +39,10 @@ contract MyToken {
         emit Transfer(from, to, amount);
     }
 
+    function mint(uint256 amount, address owner) external{
+        _mint(amount, owner);
+    } // 취약점 보완 필요 by modifier
+
     function _mint(uint256 amount, address owner) internal {
         totalSupply += amount;
         balanceOf[owner] += amount;
