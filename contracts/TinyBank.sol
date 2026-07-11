@@ -21,7 +21,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "./MultiManagedAccess.sol";
+import "./ManagedAccess.sol";
 
 interface IMyToken {
     function transfer(uint256 amount, address to) external;
@@ -31,7 +31,7 @@ interface IMyToken {
     function mint(uint256 amount, address owner) external;
 }
 
-contract TinyBank is MultiManagedAccess {
+contract TinyBank is ManagedAccess {
     event Staked(address from , uint256 amount);
     event Withdraw(uint256 amount, address to);
 
@@ -39,21 +39,17 @@ contract TinyBank is MultiManagedAccess {
 
     mapping(address => uint256) public lastClaimedBlock;
 
-    uint256 defaultRewardPerBlock = 1 * 10 ** 18;
-    uint256 public rewardPerBlock;
+    uint256 constant defaultRewardPerBlock = 1 * 10 ** 18;
+    uint256 rewardPerBlock;
 
     mapping(address => uint256) public staked;
     uint256 public totalStaked;
 
-    constructor(
-        IMyToken _stakingToken, 
-        address[MANAGER_NUMBERS] memory _managers
-    ) MultiManagedAccess(msg.sender, _managers){
+    constructor(IMyToken _stakingToken) ManagedAccess(msg.sender, msg.sender){
         stakingToken = _stakingToken;
         rewardPerBlock = defaultRewardPerBlock;
     }
 
-    // who, when ..?
     modifier updateReward(address to) {
         if (staked[to]>0) {
             uint256 blocks = block.number - lastClaimedBlock[to];
@@ -64,7 +60,7 @@ contract TinyBank is MultiManagedAccess {
         _; // caller's code
     }
 
-    function setRewardPerBlock(uint256 _amount) external onlyAllConfirmed {
+    function setRewardPerBlock(uint256 _amount) external onlyManager {
         rewardPerBlock = _amount;
     }
 
@@ -82,5 +78,14 @@ contract TinyBank is MultiManagedAccess {
         staked[msg.sender] -= _amount;
         totalStaked -= _amount;
         emit Withdraw(_amount, msg.sender);
+    }
+
+    function currentReward(address to) external view returns (uint256) {
+        if (staked[to] > 0) {
+            uint256 blocks = block.number - lastClaimedBlock[to];
+            return (blocks * rewardPerBlock * staked[to]) / totalStaked;
+        } else {
+            return 0;
+        }
     }
 }
